@@ -142,16 +142,16 @@ for uuid, player in players.items():
                     skin = False
 
                 player['skin'] = skin
-            except:
-                print('failed to update skin for ' + name)
+            except Exception as e:
+                print('failed to update skin for ' + name + ' (' + uuid + ')')
+                print(e)
 
     # load data
     try:
         with open(dataFilename) as dataFile:
             data = json.load(dataFile)
     except:
-        print('failed to update player data for ' + name +
-            '(' + uuid + ')')
+        print('failed to update player data for ' + name + ' (' + uuid + ')')
         continue
 
     # check data version
@@ -234,10 +234,19 @@ for (id, crown) in hof.ranking:
 playerCache = dict()
 
 for uuid, player in players.items():
-    playerCache[uuid] = {
-        'name': player['name'],
-        'last': player['last'],
-    }
+    if not 'last' in player:
+        print('WARNING: no "last played" info available for player:')
+        print(player)
+
+        playerCache[uuid] = {
+            'name': player['name'],
+            'last': now, # fallback
+        }
+    else:
+        playerCache[uuid] = {
+            'name': player['name'],
+            'last': player['last'],
+        }
 
     if 'skin' in player:
         playerCache[uuid]['skin'] = player['skin']
